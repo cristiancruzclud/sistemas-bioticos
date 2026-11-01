@@ -1,0 +1,10 @@
+GUÍA PASO A PASO PARA SUBIR LA ESTRUCTURA A GITHUB
+
+1. Descomprime el archivo ZIP descargado en tu computador.
+2. Entra a tu repositorio en GitHub (https://github.com/cristiancruzclud/bio-ingeneria-).
+3. Haz clic en "Add file" -> "Upload files".
+4. Arrastra TODAS las carpetas (docs, imagenes, src, videos) y los archivos (index.html, README.md) al recuadro de carga de GitHub.
+5. Haz clic en el botón verde "Commit changes".
+6. Ve a la pestaña "Settings" -> "Pages" en GitHub.
+7. Selecciona la rama "principal" (o "main") y guarda.
+8. ¡Listo! Tu página web cargará correctamente en vivo.

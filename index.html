@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNISANGIL - Mapa de Biodiversidad Agrícola de Casanare</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Leaflet CSS y JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #map { height: 420px; z-index: 1; border-radius: 0.5rem; }
+        .tab-active { background-color: #15803d; color: white; border-bottom: 4px solid #166534; }
+        .tab-inactive { background-color: #f3f4f6; color: #374151; }
+        .tab-inactive:hover { background-color: #e5e7eb; }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; p: 0 !important; }
+            nav { position: static !important; }
+            #map { height: 350px !important; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    
+    <!-- ENCABEZADO ACADÉMICO UNISANGIL -->
+    <nav class="bg-green-900 text-white p-4 shadow-xl sticky top-0 z-50 border-b-4 border-yellow-500">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">🌿</span>
+                    <h1 class="text-xl font-bold tracking-wide">FUNDACIÓN UNIVERSITARIA DE SAN GIL - UNISANGIL</h1>
+                </div>
+                <p class="text-xs text-green-200">Programa de Ingeniería Agrícola | Sede Yopal | Semestre Académico 2026-2</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="window.print()" class="no-print bg-white hover:bg-gray-100 text-green-900 px-3.5 py-2 rounded font-bold text-xs flex items-center shadow transition transform hover:scale-105">
+                    🖨️ Guardar PDF / Imprimir
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="p-6 max-w-7xl mx-auto space-y-6">
+
+        <!-- PLANTEAMIENTO DEL PROBLEMA REAL Y PASO 1: PROTOCOLO DE MUESTREO -->
+        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-700 space-y-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-3 gap-2">
+                <div>
+                    <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-1 rounded uppercase">Problema Real en Casanare</span>
+                    <h2 class="text-xl font-bold text-gray-800 mt-1">Pérdida de Biodiversidad & Dificultad en Identificación de Microorganismos Benéficos</h2>
+                </div>
+                <div class="text-xs bg-gray-100 p-2 rounded text-gray-600">
+                    <strong>Objetivo:</strong> Mapeo fitosanitario y biofertilización en cultivos de Palma y Arroz.
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h3 class="text-sm font-bold text-gray-800 flex items-center">
+                    <span class="bg-green-700 text-white text-xs px-2 py-0.5 rounded mr-2">Paso 1</span> Protocolo Metodológico de Recolección de Muestras (Simulado/Documentado)
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    <div class="bg-amber-50 p-4 rounded-lg border border-amber-200 space-y-2">
+                        <h4 class="font-bold text-amber-900 text-sm flex items-center">🧪 Muestreo de Suelo (Rhizosfera)</h4>
+                        <ul class="space-y-1.5 text-gray-700">
+                            <li><strong>✓ Selección del sitio:</strong> Cultivo representativo de Casanare (Palma / Arroz).</li>
+                            <li><strong>✓ Delimitación del área:</strong> Marcado de cuadrante de 1 m².</li>
+                            <li><strong>✓ Extracción:</strong> Pala o barreno a 10–15 cm de profundidad.</li>
+                            <li><strong>✓ Almacenamiento:</strong> Bolsas plásticas limpias, rotuladas (fecha, lugar, coordenadas).</li>
+                            <li><strong>✓ Registro ambiental:</strong> Anotación de Humedad (%), Temp (°C) y pH del suelo.</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-200 space-y-2">
+                        <h4 class="font-bold text-emerald-900 text-sm flex items-center">🌿 Muestreo de Plantas y Tejido Foliar</h4>
+                        <ul class="space-y-1.5 text-gray-700">
+                            <li><strong>✓ Selección de especie:</strong> Hojas, tallos o raíces (cultivadas o silvestres).</li>
+                            <li><strong>✓ Corte aséptico:</strong> Tijeras desinfectadas para evitar contaminación cruzada.</li>
+                            <li><strong>✓ Almacenamiento:</strong> Sobres/bolsas de papel rotulados con nombre común y lugar.</li>
+                            <li><strong>✓ Registro fotográfico:</strong> Fotografía de planta completa y sección recolectada.</li>
+                            <li><strong>✓ Observación inicial:</strong> Registro de color, textura, clorosis o necrosis.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PASOS 2, 3 Y 4: BUSCADOR Y FILTROS DE BIODIVERSIDAD -->
+        <div class="bg-white p-5 rounded-lg shadow-md border border-gray-200 space-y-4">
+            <h2 class="text-lg font-bold text-gray-800 flex items-center">
+                <span class="mr-2">🔬</span> Clasificación Taxonómica, Función Ecológica y Manejo Sostenible (Pasos 2, 3 y 4)
+            </h2>
+            
+            <div class="flex flex-wrap gap-4 items-center">
+                <div class="flex-1 min-w-[240px]">
+                    <label class="block text-xs font-bold text-gray-600 mb-1">1. Especie / Microorganismo:</label>
+                    <select id="organismSelect" class="w-full border p-2.5 rounded text-gray-800 outline-none focus:ring-2 focus:ring-green-600 text-sm bg-gray-50">
+                        <option value="Todos">✨ Todos los Organismos Identificados</option>
+                        <option value="Elaeis guineensis">Elaeis guineensis (Palma de Aceite - Hospedero)</option>
+                        <option value="Phytophthora palmivora">Phytophthora palmivora (Oomiceto - Patógeno PC)</option>
+                        <option value="Candidatus Liberibacter">Candidatus Liberibacter (Bacteria - Patógeno ML)</option>
+                        <option value="Haplaxius crudus">Haplaxius crudus (Insecto - Vector ML)</option>
+                        <option value="Trichoderma harzianum">Trichoderma harzianum (Hongo - Biocontrolador)</option>
+                        <option value="Bacillus subtilis">Bacillus subtilis (Bacteria - Biofertilizante)</option>
+                        <option value="Ganoderma zonatum">Ganoderma zonatum (Hongo - Patógeno Basal)</option>
+                    </select>
+                </div>
+                
+                <div class="w-56 min-w-[170px]">
+                    <label class="block text-xs font-bold text-gray-600 mb-1">2. Dominio Taxonómico:</label>
+                    <select id="domainFilter" class="w-full border p-2.5 rounded text-gray-800 outline-none focus:ring-2 focus:ring-green-600 text-sm bg-gray-50">
+                        <option value="Todos">✨ Todos los Dominios</option>
+                        <option value="Eukaryota">Eukaryota (Eucariotas)</option>
+                        <option value="Bacteria">Bacteria (Bacterias)</option>
+                    </select>
+                </div>
+                
+                <div class="flex-1 min-w-[260px]">
+                    <label class="block text-xs font-bold text-gray-600 mb-1">3. Zona Agrícola / Lugar:</label>
+                    <select id="locationFilter" class="w-full border p-2.5 rounded font-bold text-green-900 outline-none focus:ring-2 focus:ring-green-600 text-sm bg-green-50">
+                        <option value="Todos">📍 Todas las Zonas de Muestreo</option>
+                        <option value="Yopal">Yopal, Casanare (Muestra Y-01)</option>
+                        <option value="Villanueva">Villanueva, Casanare (Muestra V-02)</option>
+                        <option value="Monterrey">Monterrey, Casanare (Muestra M-03)</option>
+                        <option value="PuertoWilches">Puerto Wilches, Santander (Muestra P-04)</option>
+                    </select>
+                </div>
+                
+                <div class="pt-5 flex gap-2">
+                    <button id="resetBtn" class="bg-gray-700 text-white px-4 py-2.5 rounded hover:bg-gray-800 transition shadow text-sm font-semibold flex items-center">
+                        🔄 Restablecer
+                    </button>
+                </div>
+            </div>
+
+            <div id="educationalDetailCard" class="bg-white p-5 rounded-lg border-2 border-green-600 shadow-lg space-y-4 transition-all">
+            </div>
+        </div>
+
+        <!-- PASO 5: RESULTADOS Y MAPA DE BIODIVERSIDAD -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div class="xl:col-span-2 space-y-4">
+                <div class="flex justify-between items-center border-b pb-2">
+                    <h2 class="text-xl font-bold text-gray-800">Paso 5: Catálogo de Biodiversidad con Jerarquía Taxonómica</h2>
+                    <span id="resultsCountBadge" class="text-xs bg-green-100 text-green-800 font-bold px-3 py-1 rounded-full">7 Especies Registradas</span>
+                </div>
+                
+                <div id="organismsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200">
+                    <h2 class="text-lg font-bold text-gray-800 mb-1 flex justify-between items-center">
+                        Mapa de Biodiversidad Agrícola
+                        <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold">CASANARE</span>
+                    </h2>
+                    <p class="text-xs text-gray-500 mb-2">Puntos georreferenciados de recolección de muestras de suelo y plantas:</p>
+                    <div id="map" class="shadow-inner border"></div>
+                </div>
+
+                <div id="telemetryPanel" class="bg-white p-4 rounded-lg shadow-md border-l-4 border-gray-400 transition-colors duration-500">
+                    <h2 class="text-lg font-bold text-gray-800 mb-1">Registro Ambiental de la Muestra</h2>
+                    <p class="text-xs text-gray-500 mb-2">Sensor ESP32 (Capacitivo + DS18B20 + pH SEN0161)</p>
+                    <div id="telemetryHeader" class="bg-gray-100 p-2.5 rounded mb-3">
+                        <p id="telemetryLocation" class="text-xs font-bold text-gray-800">Seleccione un punto en el mapa</p>
+                    </div>
+                    <ul class="text-xs text-gray-700 space-y-2.5">
+                        <li class="flex justify-between items-center border-b pb-1">
+                            <span>💧 Humedad del Suelo (Capacitivo)</span> 
+                            <span id="telHum" class="font-bold text-blue-600 text-sm">-- %</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b pb-1">
+                            <span>🌡️ Temperatura Ambiental</span> 
+                            <span id="telTemp" class="font-bold text-red-600 text-sm">-- °C</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b pb-1">
+                            <span>🧪 pH del Suelo (Acidez)</span> 
+                            <span id="telPh" class="font-bold text-purple-600 text-sm">--</span>
+                        </li>
+                    </ul>
+                    <div id="telemetryAlert" class="mt-3 p-2.5 bg-gray-50 text-gray-600 rounded border text-[11px] hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLA RESUMEN COMPLETA -->
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 space-y-4">
+            <div class="flex justify-between items-center flex-wrap gap-2">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                    <span class="mr-2">📊</span> Matriz Final de Clasificación Taxonómica & Función Ecológica (UNISANGIL 2026-2)
+                </h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs text-left border-collapse border border-gray-200">
+                    <thead>
+                        <tr class="bg-green-900 text-white font-bold">
+                            <th class="p-2.5 border">Lugar / Zona Muestreada</th>
+                            <th class="p-2.5 border">Nombre Científico</th>
+                            <th class="p-2.5 border">Función Ecológica</th>
+                            <th class="p-2.5 border">Dominio</th>
+                            <th class="p-2.5 border">Reino</th>
+                            <th class="p-2.5 border">Filo / División</th>
+                            <th class="p-2.5 border">Clase › Orden › Familia</th>
+                            <th class="p-2.5 border">Género</th>
+                            <th class="p-2.5 border">Especie</th>
+                        </tr>
+                    </thead>
+                    <tbody id="taxonomyTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const organismsData = [
+            { 
+                id: 1, 
+                name: "Elaeis guineensis", 
+                category: "Cultivo Hospedero",
+                role: "Planta Cultivada", 
+                shortHierarchy: "Liliopsida › Arecales › Arecaceae",
+                domain: "Eukaryota", kingdom: "Plantae", phylum: "Magnoliophyta", class: "Liliopsida", order: "Arecales", family: "Arecaceae", genus: "Elaeis", species: "E. guineensis",
+                color: "green", location: "Monterrey", locationLabel: "📍 Monterrey, Casanare (Muestra M-03)",
+                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Oil_palm_plantation_in_Malaysia.jpg/320px-Oil_palm_plantation_in_Malaysia.jpg",
+                whatIs: "Especie vegetal cultivada (Palma de Aceite) de alta importancia socioeconómica en Monterrey, Villanueva y Yopal.",
+                whyItOccurs: "Establecida en agroecosistemas tropicales húmedos con temperaturas medias de 26-30°C y suelos de texturas francas a franco-arcillosas.",
+                impactAndManagement: "Función Ecológica: Productor primario / Hospedero. Estrategia Sostenible: Manejo integrado de nutrición foliar y coberturas leguminosas para reducir fertilizantes sintéticos."
+            },
+            { 
+                id: 2, 
+                name: "Phytophthora palmivora", 
+                category: "Patógeno del Suelo/Cogollo",
+                role: "Oomiceto Patógeno", 
+                shortHierarchy: "Oomycetes › Peronosporales › Peronosporaceae",
+                domain: "Eukaryota", kingdom: "Chromista", phylum: "Oomycota", class: "Oomycetes", order: "Peronosporales", family: "Peronosporaceae", genus: "Phytophthora", species: "P. palmivora",
+                color: "red", location: "Yopal", locationLabel: "📍 Yopal, Casanare (Muestra Y-01)",
+                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Phytophthora_infestans_sporangiophores_and_sporangia.jpg/320px-Phytophthora_infestans_sporangiophores_and_sporangia.jpg",
+                whatIs: "Oomiceto fitopatógeno agente causal de la Pudrición del Cogollo (PC) en cultivos de palma de aceite.",
+                whyItOccurs: "Favorecido por el uso excesivo de agroquímicos que eliminan antagonistas naturales, sumado a saturación de agua en suelo (Humedad > 80%).",
+                impactAndManagement: "Función Ecológica: Parasito obligado / Destructor de meristemo. Estrategia Sostenible: Adecuación física de drenajes, cirugía preventiva e inoculación de biofungicidas."
+            },
+            { 
+                id: 3, 
+                name: "Candidatus Liberibacter", 
+                category: "Patógeno Bacteriano",
+                role: "Bacteria Patógena", 
+                shortHierarchy: "Alphaproteob. › Rhizobiaceae*",
+                domain: "Bacteria", kingdom: "Bacteria", phylum: "Pseudomonadota", class: "Alphaproteobacteria", order: "Hyphomicrobiales", family: "Rhizobiaceae*", genus: "Candidatus Liberibacter", species: "C. Liberibacter sp.",
+                color: "red", location: "Villanueva", locationLabel: "📍 Villanueva, Casanare (Muestra V-02)",
+                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Liberibacter_asiaticus.png/320px-Liberibacter_asiaticus.png",
+                whatIs: "Bacteria vascular phloematica asociada con el complejo epidemiológico de la Marchitez Letal (ML).",
+                whyItOccurs: "Se propaga por desequilibrio biológico y multiplicación sin control de insectos vectores succionadores en el cultivo.",
+                impactAndManagement: "Función Ecológica: Patógeno vascular en floema. Estrategia Sostenible: Erradicación aséptica de plantas inóculo e incremento de parasitoides naturales del vector."
+            },
+            { 
+                id: 4, 
+                name: "Haplaxius crudus", 
+                category: "Insecto Vector",
+                role: "Vector Biológico", 
+                shortHierarchy: "Insecta › Hemiptera › Cixiidae",
+                domain: "Eukaryota", kingdom: "Animalia", phylum: "Arthropoda", class: "Insecta", order: "Hemiptera", family: "Cixiidae", genus: "Haplaxius", species: "H. crudus",
+                color: "yellow", location: "Villanueva", locationLabel: "📍 Villanueva, Casanare (Muestra V-02)",
+                img: "https://entnemdept.ufl.edu/creatures/orn/palms/Myndus_crudus04.jpg",
+                whatIs: "Hemíptero conocido como chinchilla de las palmas o sogata, vector primario de Marchitez Letal.",
+                whyItOccurs: "Aumento poblacional desmedido por la erradicación de coberturas diversas mediante herbicidas no selectivos, proliferando gramíneas hospederas.",
+                impactAndManagement: "Función Ecológica: Herbívoro / Vector fitopatológico. Estrategia Sostenible: Coberturas nobles leguminosas en interlineados y trampas cromáticas."
+            },
+            { 
+                id: 5, 
+                name: "Trichoderma harzianum", 
+                category: "Hongo Antagonista",
+                role: "Hongo Simbiótico / Biocontrol", 
+                shortHierarchy: "Sordariomyc. › Hypocreales",
+                domain: "Eukaryota", kingdom: "Fungi", phylum: "Ascomycota", class: "Sordariomycetes", order: "Hypocreales", family: "Hypocreaceae", genus: "Trichoderma", species: "T. harzianum",
+                color: "green", location: "Monterrey", locationLabel: "📍 Monterrey, Casanare (Muestra M-03)",
+                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Trichoderma_harzianum.jpg/320px-Trichoderma_harzianum.jpg",
+                whatIs: "Microorganismo benéfico aislado en suelos con alta materia orgánica en el municipio de Monterrey.",
+                whyItOccurs: "Se identifica con mayor abundancia en suelos libres de fungicidas sintéticos con pH entre 5.5 y 6.8.",
+                impactAndManagement: "Función Ecológica: Biocontrolador por micoparasitismo y promotor de crecimiento radicular. Estrategia Sostenible: Inoculación masiva en drench al plato de la palma."
+            },
+            { 
+                id: 6, 
+                name: "Bacillus subtilis", 
+                category: "Bacteria PGPR",
+                role: "Bacteria Biofertilizante", 
+                shortHierarchy: "Bacilli › Bacillales",
+                domain: "Bacteria", kingdom: "Bacteria", phylum: "Bacillota", class: "Bacilli", order: "Bacillales", family: "Bacillaceae", genus: "Bacillus", species: "B. subtilis",
+                color: "green", location: "Monterrey", locationLabel: "📍 Monterrey, Casanare (Muestra M-03)",
+                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Bacillus_subtilis_Gram.jpg/320px-Bacillus_subtilis_Gram.jpg",
+                whatIs: "Rizobacteria promotora del crecimiento vegetal (PGPR) aislada en muestras de suelo rhizosférico.",
+                whyItOccurs: "Favorecida en suelos enriquecidos con compost o fertilización orgánica sustentable.",
+                impactAndManagement: "Función Ecológica: Solubilizadora de fósforo y defensora del sistema radicular. Estrategia Sostenible: Biofertilización biológica reduciendo síntesis química."
+            },
+            { 
+                id: 7, 
+                name: "Ganoderma zonatum", 
+                category: "Hongo Degradador de Madera",
+                role: "Patógeno Basal", 
+                shortHierarchy: "Agaricomycetes › Polyporales",
+                domain: "Eukaryota", kingdom: "Fungi", phylum: "Basidiomycota", class: "Agaricomycetes", order: "Polyporales", family: "Ganodermataceae", genus: "Ganoderma", species: "G. zonatum",
+                color: "orange", location: "PuertoWilches", locationLabel: "📍 Puerto Wilches, Santander (Muestra P-04)",
+                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Ganoderma_lucidum_1.jpg/320px-Ganoderma_lucidum_1.jpg",
+                whatIs: "Hongo basidiomiceto causante de la Pudrición Basal del Tallo en palmas de aceite.",
+                whyItOccurs: "Asociado a tocones leñosos en descomposición sin manejo bioagronómico en renovaciones de cultivo.",
+                impactAndManagement: "Función Ecológica: Degradador de lignina / Patógeno estructural. Estrategia Sostenible: Limpieza física de tocones e inoculación de Trichoderma."
+            }
+        ];
+
+        const locationData = {
+            "Todos": { lat: 6.0, lng: -73.1, zoom: 7, name: "Todas las Zonas Muestreadas en Casanare & Santander", url: "#", hum: "--", temp: "--", ph: "--", borderColor: "border-gray-400", headerBg: "bg-gray-100", textColor: "text-gray-800", alertHtml: "Seleccione una zona en el menú para ver la muestra de suelo/planta recolectada.", alertClass: "bg-gray-50 text-gray-600 border-gray-200" },
+            "Yopal": { lat: 5.3412, lng: -72.3921, zoom: 16, name: "Zona Yopal (Muestra Y-01 Suelo/Planta)", url: "https://maps.app.goo.gl/bJCMtTwJ59rkCLeV8", hum: "83.1", temp: "26.2", ph: "5.7", borderColor: "border-red-500", headerBg: "bg-red-50", textColor: "text-red-800", alertHtml: "<strong>⚠️ Muestra Y-01:</strong> Suelo saturado (83.1% Humedad). Presencia de <i>Phytophthora palmivora</i>.", alertClass: "bg-red-50 text-red-700 border-red-200" },
+            "Villanueva": { lat: 4.6081, lng: -72.9463, zoom: 16, name: "Zona Villanueva (Muestra V-02 Suelo/Planta)", url: "https://maps.app.goo.gl/RGxRqWDNf9c9bn716", hum: "54.8", temp: "31.5", ph: "6.0", borderColor: "border-yellow-500", headerBg: "bg-yellow-50", textColor: "text-yellow-800", alertHtml: "<strong>⚠️ Muestra V-02:</strong> Captura del vector <i>Haplaxius crudus</i> en follaje.", alertClass: "bg-yellow-50 text-yellow-700 border-yellow-200" },
+            "Monterrey": { lat: 4.8785, lng: -72.8962, zoom: 16, name: "Zona Monterrey (Muestra M-03 Suelo/Planta)", url: "https://maps.app.goo.gl/8ZLJuYUdT8pfvF1T6", hum: "61.5", temp: "29.4", ph: "6.4", borderColor: "border-green-500", headerBg: "bg-green-50", textColor: "text-green-800", alertHtml: "<strong>✅ Muestra M-03:</strong> Alta presencia de microfauna benéfica (<i>Trichoderma</i> y <i>Bacillus</i>).", alertClass: "bg-green-50 text-green-700 border-green-200" },
+            "PuertoWilches": { lat: 7.3489, lng: -73.9102, zoom: 15, name: "Zona Puerto Wilches (Muestra P-04)", url: "#", hum: "72.0", temp: "28.0", ph: "5.9", borderColor: "border-orange-500", headerBg: "bg-orange-50", textColor: "text-orange-800", alertHtml: "<strong>⚠️ Muestra P-04:</strong> Muestreo en tocones con riesgo de <i>Ganoderma</i>.", alertClass: "bg-orange-50 text-orange-700 border-orange-200" }
+        };
+
+        var map = L.map('map').setView([locationData["Todos"].lat, locationData["Todos"].lng], locationData["Todos"].zoom); 
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles &copy; Esri' }).addTo(map);
+
+        function getIcon(color) { return new L.Icon({ iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`, shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] }); }
+
+        var markers = {};
+        markers["Yopal"] = L.marker([locationData["Yopal"].lat, locationData["Yopal"].lng], {icon: getIcon('red')}).addTo(map).bindPopup("<b>Yopal (Muestra Y-01)</b><br><a href='https://maps.app.goo.gl/bJCMtTwJ59rkCLeV8' target='_blank'>Ver en Google Maps</a>");
+        markers["Villanueva"] = L.marker([locationData["Villanueva"].lat, locationData["Villanueva"].lng], {icon: getIcon('orange')}).addTo(map).bindPopup("<b>Villanueva (Muestra V-02)</b><br><a href='https://maps.app.goo.gl/RGxRqWDNf9c9bn716' target='_blank'>Ver en Google Maps</a>");
+        markers["Monterrey"] = L.marker([locationData["Monterrey"].lat, locationData["Monterrey"].lng], {icon: getIcon('green')}).addTo(map).bindPopup("<b>Monterrey (Muestra M-03)</b><br><a href='https://maps.app.goo.gl/8ZLJuYUdT8pfvF1T6' target='_blank'>Ver en Google Maps</a>");
+        markers["PuertoWilches"] = L.marker([locationData["PuertoWilches"].lat, locationData["PuertoWilches"].lng], {icon: getIcon('violet')}).addTo(map).bindPopup("<b>Puerto Wilches (Muestra P-04)</b>");
+
+        function updateDashboard() {
+            const selectedOrg = document.getElementById('organismSelect').value;
+            const selectedDomain = document.getElementById('domainFilter').value;
+            const selectedLoc = document.getElementById('locationFilter').value;
+
+            const container = document.getElementById('organismsContainer');
+            const tableBody = document.getElementById('taxonomyTableBody');
+            container.innerHTML = ""; tableBody.innerHTML = "";
+            let filteredResults = [];
+
+            organismsData.forEach(org => {
+                if ((selectedOrg === "Todos" || org.name === selectedOrg) &&
+                    (selectedDomain === "Todos" || org.domain === selectedDomain) &&
+                    (selectedLoc === "Todos" || org.location === selectedLoc)) {
+                    filteredResults.push(org);
+                }
+            });
+
+            document.getElementById('resultsCountBadge').innerText = `${filteredResults.length} Registros Coincidentes`;
+
+            const eduCard = document.getElementById('educationalDetailCard');
+            let mapLinkHtml = (selectedLoc !== "Todos" && locationData[selectedLoc].url && locationData[selectedLoc].url !== "#") ? `<a href="${locationData[selectedLoc].url}" target="_blank" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3.5 py-2 rounded">📍 Enlace Google Maps (${selectedLoc})</a>` : "";
+
+            if (filteredResults.length > 0) {
+                const first = filteredResults[0];
+                eduCard.innerHTML = `
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-3 gap-2">
+                        <div>
+                            <span class="bg-green-800 text-white text-xs font-bold uppercase px-2.5 py-1 rounded">Ficha Técnica UNISANGIL - Diagnóstico Positivo</span>
+                            <h3 class="text-2xl font-bold text-gray-800 italic mt-1">${first.name}</h3>
+                            <p class="text-xs text-green-900 font-semibold">Ubicación Muestreada: <span class="text-blue-900 font-bold">${first.locationLabel}</span> | Rol: <span class="text-green-700 font-bold">${first.role}</span></p>
+                        </div>
+                        <div>${mapLinkHtml}</div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                        <div class="bg-emerald-50 p-3.5 rounded border border-emerald-200">
+                            <h4 class="font-bold text-emerald-900 text-sm mb-1">🔬 ¿Qué es y Diagnóstico?</h4>
+                            <p class="text-gray-700 leading-relaxed">${first.whatIs}</p>
+                        </div>
+                        <div class="bg-amber-50 p-3.5 rounded border border-amber-200">
+                            <h4 class="font-bold text-amber-900 text-sm mb-1">🌧️ ¿Por qué se da en este lote?</h4>
+                            <p class="text-gray-700 leading-relaxed">${first.whyItOccurs}</p>
+                        </div>
+                        <div class="bg-blue-50 p-3.5 rounded border border-blue-200">
+                            <h4 class="font-bold text-blue-900 text-sm mb-1">🌱 Función Ecológica y Manejo</h4>
+                            <p class="text-gray-700 leading-relaxed">${first.impactAndManagement}</p>
+                        </div>
+                    </div>`;
+            } else {
+                let targetOrg = selectedOrg !== "Todos" ? selectedOrg : "la especie seleccionada";
+                let targetLoc = selectedLoc !== "Todos" ? selectedLoc : "el lote consultado";
+                let targetDomain = selectedDomain !== "Todos" ? selectedDomain : "el dominio filtrado";
+
+                eduCard.innerHTML = `
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-3 gap-2">
+                        <div>
+                            <span class="bg-blue-800 text-white text-xs font-bold uppercase px-2.5 py-1 rounded">Diagnóstico Preventivo UNISANGIL</span>
+                            <h3 class="text-xl font-bold text-gray-800 italic mt-1">Evaluación de Ausencia / No Presencia Registrada</h3>
+                            <p class="text-xs text-gray-600 font-semibold">Combinación: <strong>${targetOrg}</strong> | Dominio: <strong>${targetDomain}</strong> | Zona: <strong>${targetLoc}</strong></p>
+                        </div>
+                        <div>${mapLinkHtml}</div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                        <div class="bg-blue-50 p-3.5 rounded border border-blue-200">
+                            <h4 class="font-bold text-blue-900 text-sm mb-1">❓ ¿Por qué NO se presenta aquí?</h4>
+                            <p class="text-gray-700 leading-relaxed">
+                                No se ha detectado <strong>${targetOrg}</strong> en la muestra de <strong>${targetLoc}</strong> porque las condiciones agroecológicas actuales (humedad o pH) o el dominio biológico no corresponden al nicho específico donde prolifera este organismo.
+                            </p>
+                        </div>
+                        <div class="bg-emerald-50 p-3.5 rounded border border-emerald-200">
+                            <h4 class="font-bold text-emerald-900 text-sm mb-1">🛡️ Beneficio de Ausencia / Estado</h4>
+                            <p class="text-gray-700 leading-relaxed">
+                                La ausencia de este organismo en la zona <strong>${targetLoc}</strong> indica que el lote se mantiene libre de este patógeno/vector específico o que el nivel del biofertilizante requiere ser inoculado artificialmente.
+                            </p>
+                        </div>
+                        <div class="bg-amber-50 p-3.5 rounded border border-amber-200">
+                            <h4 class="font-bold text-amber-900 text-sm mb-1">🛠️ Estrategia Preventiva</h4>
+                            <p class="text-gray-700 leading-relaxed">
+                                Se recomienda mantener las prácticas sostenibles, continuar con el monitoreo periódico de telemetría IoT y conservar las coberturas vegetales para evitar el ingreso o dispersión de plagas.
+                            </p>
+                        </div>
+                    </div>`;
+            }
+
+            filteredResults.forEach(org => {
+                const bgBadge = org.color === 'red' ? 'bg-red-600' : (org.color === 'green' ? 'bg-green-700' : (org.color === 'orange' ? 'bg-orange-600' : 'bg-yellow-600'));
+                
+                container.innerHTML += `
+                <div class="border rounded-lg bg-white shadow-sm hover:shadow-md transition-all p-4 space-y-2">
+                    <img src="${org.img}" alt="${org.name}" class="h-32 w-full object-cover rounded bg-gray-100">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-gray-800 italic text-base">${org.name}</h3>
+                        <span class="${bgBadge} text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">${org.role}</span>
+                    </div>
+                    <div class="text-xs font-bold text-blue-900 bg-blue-50 p-1.5 rounded border border-blue-200">
+                        ${org.locationLabel}
+                    </div>
+                    <div class="text-xs font-semibold text-green-800 bg-green-50 p-1.5 rounded border border-green-200">
+                        📂 ${org.shortHierarchy}
+                    </div>
+                </div>`;
+
+                tableBody.innerHTML += `
+                <tr class="hover:bg-gray-50 border-b text-xs">
+                    <td class="p-2.5 font-bold text-blue-900 border bg-blue-50/40">${org.locationLabel}</td>
+                    <td class="p-2.5 font-bold italic text-gray-800 border">${org.name}</td>
+                    <td class="p-2.5 border"><span class="${bgBadge} text-white text-[10px] font-bold px-1.5 py-0.5 rounded">${org.role}</span></td>
+                    <td class="p-2.5 border">${org.domain}</td>
+                    <td class="p-2.5 border">${org.kingdom}</td>
+                    <td class="p-2.5 border">${org.phylum}</td>
+                    <td class="p-2.5 font-semibold text-green-900 border">${org.shortHierarchy}</td>
+                    <td class="p-2.5 border">${org.genus}</td>
+                    <td class="p-2.5 border italic">${org.species}</td>
+                </tr>`;
+            });
+
+            if (filteredResults.length === 0) {
+                container.innerHTML = `
+                <div class="col-span-full p-4 bg-blue-50 text-blue-800 rounded-lg border border-blue-200 text-xs space-y-1">
+                    <p class="font-bold">ℹ️ Sin organismos coincidentes en la vista previa del catálogo.</p>
+                    <p>Revisa la <strong>Ficha de Diagnóstico Preventivo</strong> superior para consultar las razones de ausencia y la estrategia biológica sugerida.</p>
+                </div>`;
+                tableBody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-gray-500 italic">No hay organismos en el catálogo para esta combinación exacta. Ver diagnóstico preventivo arriba.</td></tr>`;
+            }
+
+            const data = locationData[selectedLoc];
+            document.getElementById('telHum').innerText = data.hum !== "--" ? data.hum + " %" : "-- %";
+            document.getElementById('telTemp').innerText = data.temp !== "--" ? data.temp + " °C" : "-- °C";
+            document.getElementById('telPh').innerText = data.ph;
+            
+            document.getElementById('telemetryLocation').innerText = data.name;
+            document.getElementById('telemetryPanel').className = `bg-white p-4 rounded-lg shadow-md border-l-4 transition-all duration-500 ${data.borderColor}`;
+            document.getElementById('telemetryHeader').className = `p-2.5 rounded mb-3 transition-colors ${data.headerBg}`;
+
+            const alertBox = document.getElementById('telemetryAlert');
+            alertBox.innerHTML = data.alertHtml;
+            alertBox.className = `mt-3 p-2.5 rounded border text-[11px] block transition-all ${data.alertClass}`;
+
+            map.flyTo([data.lat, data.lng], data.zoom, { duration: 1.5 });
+        }
+
+        document.getElementById('organismSelect').addEventListener('change', updateDashboard);
+        document.getElementById('domainFilter').addEventListener('change', updateDashboard);
+        document.getElementById('locationFilter').addEventListener('change', updateDashboard);
+        
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            document.getElementById('organismSelect').value = "Todos";
+            document.getElementById('domainFilter').value = "Todos";
+            document.getElementById('locationFilter').value = "Todos";
+            updateDashboard();
+        });
+
+        updateDashboard();
+    </script>
+</body>
+</html>
